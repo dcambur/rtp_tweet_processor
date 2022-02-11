@@ -49,4 +49,4 @@ SSE Connection Status Handle Endpoint -> handles the current HTTP connection sta
 
 ### Architecture Diagram
 
-![]
+![SimpleDiagram](simple_diagram.png)
