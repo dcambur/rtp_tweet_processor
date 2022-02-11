@@ -15,15 +15,16 @@ Logger - built-in module. Required to log information.
 ## **Actor - Superviser Description**
 
 Actors - elixir actors are defined as the processes of the BEAM. 
-For now, there is a need in only single type of actor, 
-the one which will process the SSE streams.
+The current plan proposes to use next actors:
+1) Worker -> to process tweets
+2) Listener -> to read SSE Stream
+3) Dispatcher -> to send json messages to workes
+4) Scaler -> to autoscale workers depending on the load
 
-Supervisor - they are the processes which are created to supervise the children(supervised processes). 
-By default, they do by building a Supervision Tree.
+Supervisor - process, which is created to track its children's(supervised processes) state. 
+By default, they do so by building a Supervision Tree.
 Supervision trees provide fault-tolerance and encapsulate how our applications start and shutdown, 
 so it a must to have it in our application. 
-This project needs a supervisor which can add workers on demand.
-
 ---
 
 ## **Endpoints**
