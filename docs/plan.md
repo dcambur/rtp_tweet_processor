@@ -49,4 +49,10 @@ SSE Connection Status Handle Endpoint -> handles the current HTTP connection sta
 
 ### Architecture Diagram
 
-![SimpleDiagram](simple_diagram.png)
+This diagram describes the processing and dispatching of two Twitter feeds.
+
+![SSEFlowDiagram](assets/sse_flow_diagram.png)
+
+
+This diagram describes the subsequent Worker Supervisor actions.
+![WorkerSupervisorDiagram](assets/worker_supervisor_diagram.png)
