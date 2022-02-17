@@ -11,7 +11,7 @@ defmodule STREAM_PROCESSOR do
   end
 
   def init([url: url]) do
-    IO.puts "Connecting to stream..."
+    IO.puts("Connecting to stream...")
     HTTPoison.get!(url, [], [recv_timeout: :infinity, stream_to: self()])
     {:ok, nil}
   end

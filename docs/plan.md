@@ -25,6 +25,7 @@ Supervisor - process, which is created to track its children's(supervised proces
 By default, they do so by building a Supervision Tree.
 Supervision trees provide fault-tolerance and encapsulate how our applications start and shutdown, 
 so it a must to have it in our application. 
+
 ---
 
 ## **Endpoints**
