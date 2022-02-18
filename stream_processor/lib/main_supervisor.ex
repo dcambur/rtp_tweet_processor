@@ -1,34 +1,33 @@
-defmodule STREAM_PROCESSOR do
+defmodule SSE.Main do
   @moduledoc """
-  STREAM_PROCESSOR is a GenServer-based module created to process SSE Streams asynchroniously.
+  MAIN is a module created to run all children supervisors,
+  Essentially, it is a main supervisor.
   """
 
-  use GenServer
+  use Supervisor
+
+  @tweet1 "http://127.0.0.1:4000/tweets/1"
+  @tweet2 "http://127.0.0.1:4000/tweets/2"
+
+  @listener_sup :listener_sup
+  @worker_sup :worker_sup
+  @dispatcher_sup :dispatcher_sup
 
 
-  def start(url) do
-    GenServer.start_link(__MODULE__, url: url)
+  def start() do
+    Supervisor.start_link(__MODULE__, [])
   end
 
-  def init([url: url]) do
-    IO.puts("Connecting to stream...")
-    HTTPoison.get!(url, [], [recv_timeout: :infinity, stream_to: self()])
-    {:ok, nil}
+  def init([]) do
+    IO.puts("Main Supervisor init...")
+
+    children = [
+        Supervisor.child_spec({SSE.Supervisor.Worker, @worker_sup}, id: @worker_sup),
+        Supervisor.child_spec({SSE.Supervisor.Listener, [@tweet1, @tweet2]}, id: @listener_sup),
+        Supervisor.child_spec({SSE.Supervisor.Dispatcher, @dispatcher_sup}, id: @dispatcher_sup)
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, _state) do
-      IO.puts(chunk)
-      Process.sleep(1000)
-      {:noreply, nil}
-  end
-
-  def handle_info(%HTTPoison.AsyncStatus{} = status, _state) do
-    IO.puts("Connection status: #{inspect status}")
-    {:noreply, nil}
-  end
-
-  def handle_info(%HTTPoison.AsyncHeaders{} = headers, _state) do
-    IO.puts"Connection headers: #{inspect headers}"
-    {:noreply, nil}
-  end
 end
