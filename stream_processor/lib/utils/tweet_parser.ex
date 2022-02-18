@@ -21,6 +21,7 @@ defmodule SSE.Utils.TweetParser do
       |> Poison.decode!()
       |> send_message()
 
+      true -> :nil
     end
 
   end

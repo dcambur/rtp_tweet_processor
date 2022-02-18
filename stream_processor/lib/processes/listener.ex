@@ -31,9 +31,12 @@ defmodule SSE.Process.Listener do
   end
 
   def handle_info(%HTTPoison.AsyncHeaders{} = headers, _state) do
-    IO.puts"Connection headers: #{inspect(headers)}"
+    IO.puts("Connection headers: #{inspect(headers)}")
 
     {:noreply, nil}
   end
 
+  def handle_info(%HTTPoison.AsyncEnd{}, _state) do
+    {:noreply, nil}
+  end
 end

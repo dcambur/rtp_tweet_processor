@@ -16,15 +16,15 @@ defmodule SSE.Process.Worker do
   @doc """
   async function to handle common data and event errors
   """
-  def handle_cast([:tweet, msg], state) do
+  def handle_cast([:tweet, msg], _state) do
     IO.inspect(msg)
-    Process.sleep(2500)
+    Process.sleep(500)
     {:noreply, nil}
   end
 
-  def handle_cast([:panic, msg],  state) do
+  def handle_cast([:panic, msg],  _state) do
     IO.inspect(msg)
-    Process.sleep(2500)
+    Process.sleep(500)
     {:noreply, nil}
   end
 
