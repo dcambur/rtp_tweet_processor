@@ -1,4 +1,7 @@
 defmodule SSE.Supervisor.Dispatcher do
+  @moduledoc """
+  dispatcher process supervisor
+  """
   use Supervisor
 
   @dispatcher_proc :dispatcher_proc

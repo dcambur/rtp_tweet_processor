@@ -1,4 +1,7 @@
 defmodule SSE.Process.Listener do
+  @moduledoc """
+  a process for listening the tweet1 and tweet2 feeds of the SSE Streaming API
+  """
   use GenServer
 
   def start_link(url) do
@@ -12,6 +15,9 @@ defmodule SSE.Process.Listener do
 
   end
 
+  @doc """
+  processes incoming info and sends the main data to dispatcher process
+  """
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, _state) do
     SSE.Utils.TweetParser.process(chunk)
 

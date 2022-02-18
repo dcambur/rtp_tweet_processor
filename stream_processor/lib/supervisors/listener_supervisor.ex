@@ -1,4 +1,7 @@
 defmodule SSE.Supervisor.Listener do
+  @moduledoc """
+  listener process supervisor
+  """
   use Supervisor
 
 

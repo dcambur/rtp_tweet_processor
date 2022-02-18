@@ -1,6 +1,6 @@
 defmodule SSE.Main do
   @moduledoc """
-  MAIN is a module created to run all children supervisors,
+  module created to run all children supervisors,
   Essentially, it is a main supervisor.
   """
 
@@ -13,7 +13,9 @@ defmodule SSE.Main do
   @worker_sup :worker_sup
   @dispatcher_sup :dispatcher_sup
 
-
+  @doc """
+  runs the main supervisor
+  """
   def start() do
     Supervisor.start_link(__MODULE__, [])
   end

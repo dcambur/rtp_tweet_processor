@@ -1,4 +1,8 @@
 defmodule SSE.Supervisor.Worker do
+  @moduledoc """
+  worker process supervisor, static
+  TODO: dynamical worker creation
+  """
   use Supervisor
 
   @worker1 :worker1
