@@ -6,6 +6,6 @@ defmodule SSE.App do
       SSE.Supervisor.Main
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one)
+    Supervisor.start_link(children, strategy: :one_for_one, type: :supervisor)
   end
 end
