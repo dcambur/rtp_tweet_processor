@@ -12,7 +12,7 @@ defmodule SSE.Process.Dispatcher do
   end
 
   def init([]) do
-    {:ok, 1}
+    {:ok, 0}
   end
 
   @doc """
