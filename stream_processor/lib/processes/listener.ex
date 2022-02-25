@@ -4,6 +4,8 @@ defmodule SSE.Process.Listener do
   """
   use GenServer
 
+  @dispatcher_proc :dispatcher_proc
+
   def start_link(url) do
     GenServer.start_link(__MODULE__, url)
   end
@@ -12,14 +14,13 @@ defmodule SSE.Process.Listener do
     IO.puts("Connecting to stream...")
     HTTPoison.get!(url, [], [recv_timeout: :infinity, stream_to: self()])
     {:ok, nil}
-
   end
 
   @doc """
   processes incoming info and sends the main data to dispatcher process
   """
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, _state) do
-    SSE.Utils.TweetParser.process(chunk)
+    SSE.Utils.TweetParser.process(@dispatcher_proc, chunk)
 
     {:noreply, nil}
   end

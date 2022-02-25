@@ -1,4 +1,4 @@
-defmodule SSE.Main do
+defmodule SSE.Supervisor.Main do
   @moduledoc """
   module created to run all children supervisors,
   Essentially, it is a main supervisor.
@@ -16,7 +16,7 @@ defmodule SSE.Main do
   @doc """
   runs the main supervisor
   """
-  def start() do
+  def start_link([]) do
     Supervisor.start_link(__MODULE__, [])
   end
 

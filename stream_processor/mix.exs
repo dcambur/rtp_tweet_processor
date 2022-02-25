@@ -14,6 +14,7 @@ defmodule STREAM_PROCESSOR.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {SSE.App, []},
       extra_applications: [:logger]
     ]
   end

@@ -12,7 +12,7 @@ defmodule SSE.Process.Dispatcher do
   end
 
   def init([]) do
-    {:ok, 1}
+    {:ok, 0}
   end
 
   @doc """
@@ -20,13 +20,13 @@ defmodule SSE.Process.Dispatcher do
   finds the number of current workers under the worker supervisor
   and makes a cast via round-robin algorithm
   """
-  def handle_cast([:tweet, msg], state) do
+    def handle_cast([:tweet, msg], state) do
     worker_pids = Supervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
+    {_id, pid, _type, _module} = Enum.at(worker_pids, state)
 
-    GenServer.cast(:"worker#{state}", [:tweet, msg["message"]["tweet"]["user"]["name"]])
+    GenServer.cast(pid, [:tweet, msg["message"]["tweet"]["user"]["name"]])
     new_state = round_robin(state, worker_total)
-
 
     {:noreply, new_state}
     end
@@ -35,8 +35,9 @@ defmodule SSE.Process.Dispatcher do
     worker_pids = Supervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
 
+    {_id, pid, _type, _module} = Enum.at(worker_pids, state)
 
-    GenServer.cast(:"worker#{state}", [:panic, msg])
+    GenServer.cast(pid, [:panic, msg])
     new_state = round_robin(state, worker_total)
 
     {:noreply, new_state}
@@ -45,11 +46,11 @@ defmodule SSE.Process.Dispatcher do
   @doc """
   round-robin counter for workers
   """
-  def round_robin(current_state, pid_len) when current_state < pid_len do
+  def round_robin(current_state, pid_len) when current_state < pid_len-1 do
     current_state + 1
   end
 
-  def round_robin(current_state, pid_len) when current_state >= pid_len do
-    1
+  def round_robin(current_state, pid_len) when current_state >= pid_len-1 do
+    0
   end
 end
