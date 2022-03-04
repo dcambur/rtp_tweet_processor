@@ -6,13 +6,16 @@ defmodule SSE.Process.Dispatcher do
   use GenServer
 
   @worker_sup :worker_sup
+  @scaler_proc :scaler_proc
 
   def start_link(name) do
     GenServer.start_link(__MODULE__, [], [name: name])
   end
 
   def init([]) do
-    {:ok, 0}
+    IO.puts("dispatcher process starts up...")
+
+    {:ok, 1}
   end
 
   @doc """
@@ -21,12 +24,15 @@ defmodule SSE.Process.Dispatcher do
   and makes a cast via round-robin algorithm
   """
     def handle_cast([:tweet, msg], state) do
-    worker_pids = Supervisor.which_children(@worker_sup)
+    GenServer.cast(@scaler_proc, :inc)
+    worker_pids = DynamicSupervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
-    {_id, pid, _type, _module} = Enum.at(worker_pids, state)
+
+    new_state = round_robin(state, worker_total)
+
+    {_id, pid, _type, _module} = Enum.at(worker_pids, new_state)
 
     GenServer.cast(pid, [:tweet, msg["message"]["tweet"]["user"]["name"]])
-    new_state = round_robin(state, worker_total)
 
     {:noreply, new_state}
     end
@@ -35,10 +41,11 @@ defmodule SSE.Process.Dispatcher do
     worker_pids = Supervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
 
+    new_state = round_robin(state, worker_total)
+
     {_id, pid, _type, _module} = Enum.at(worker_pids, state)
 
     GenServer.cast(pid, [:panic, msg])
-    new_state = round_robin(state, worker_total)
 
     {:noreply, new_state}
   end
@@ -51,6 +58,6 @@ defmodule SSE.Process.Dispatcher do
   end
 
   def round_robin(current_state, pid_len) when current_state >= pid_len-1 do
-    0
+    1
   end
 end

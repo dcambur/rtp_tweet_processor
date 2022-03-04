@@ -11,6 +11,8 @@ defmodule SSE.Supervisor.Dispatcher do
   end
 
   def init([]) do
+    IO.puts("dispatcher supervisor starts up...")
+
     children = [
       Supervisor.child_spec({SSE.Process.Dispatcher, @dispatcher_proc}, id: @dispatcher_proc)
     ]

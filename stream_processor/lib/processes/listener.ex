@@ -11,7 +11,7 @@ defmodule SSE.Process.Listener do
   end
 
   def init([url: url]) do
-    IO.puts("Connecting to stream...")
+    IO.puts("listener process starts up on #{url}...")
     HTTPoison.get!(url, [], [recv_timeout: :infinity, stream_to: self()])
     {:ok, nil}
   end

@@ -10,6 +10,8 @@ defmodule SSE.Supervisor.Listener do
   end
 
   def init([tweet1, tweet2]) do
+    IO.puts("listener supervisor starts up...")
+
     children = [
       Supervisor.child_spec({SSE.Process.Listener, url: tweet1}, id: :feed1),
       Supervisor.child_spec({SSE.Process.Listener, url: tweet2}, id: :feed2)
