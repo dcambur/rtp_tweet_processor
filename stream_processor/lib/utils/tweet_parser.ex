@@ -6,7 +6,7 @@ defmodule SSE.Utils.TweetParser do
 
   @event_ok "event: \"message\"\n\ndata: "
   @event_panic "event: \"message\"\n\ndata: {\"message\": panic}\n\n"
-  @panic_msg %{error: "TODO: Implement Worker Kill"}
+  @panic_msg %{error: "Panic! Worker terminates forcefully."}
 
   @doc """
   handles data cast to dispatcher and its convertation to key-value structure

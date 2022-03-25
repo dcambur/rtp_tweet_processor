@@ -5,8 +5,11 @@ defmodule SSE.Process.Worker do
   """
   use GenServer
 
-  def start_link(name) do
-    GenServer.start_link(__MODULE__, [], [name: name])
+  @scaler_proc :scaler_proc
+  @worker_idle 50..500
+
+  def start_link() do
+    GenServer.start_link(__MODULE__, [], [])
   end
 
   def init([]) do
@@ -17,16 +20,24 @@ defmodule SSE.Process.Worker do
   async function to handle common data and event errors
   """
   def handle_cast([:tweet, msg], _state) do
-    IO.inspect(self())
-    IO.inspect(msg)
-    Process.sleep(500)
+    # IO.inspect(msg["tweet"]["user"]["name"])
+
+    Enum.random(@worker_idle)
+    |> Process.sleep()
+
+    GenServer.cast(@scaler_proc, :dec)
+
     {:noreply, nil}
   end
 
   def handle_cast([:panic, msg],  _state) do
     IO.inspect(msg)
-    Process.sleep(500)
+
+    Enum.random(@worker_idle)
+    |> Process.sleep()
+
+    GenServer.cast(@scaler_proc, [:killonce, self()])
+
     {:noreply, nil}
   end
-
 end

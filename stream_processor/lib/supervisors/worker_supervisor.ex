@@ -1,25 +1,39 @@
 defmodule SSE.Supervisor.Worker do
   @moduledoc """
-  worker process supervisor, static
-  TODO: dynamical worker creation
+  worker process supervisor with a function to
+  dynamically create a worker on demand
   """
-  use Supervisor
+  use DynamicSupervisor
 
-  @worker1 :worker1
-  @worker2 :worker2
-  @worker3 :worker3
+  @worker_sup :worker_sup
+  @worker_proc SSE.Process.Worker
+
   def start_link(name) do
-    Supervisor.start_link(__MODULE__, [], [name: name])
+    DynamicSupervisor.start_link(__MODULE__, [], [name: name])
   end
 
   def init([]) do
-    children = [
-      Supervisor.child_spec({SSE.Process.Worker, @worker1}, id: @worker1),
-      Supervisor.child_spec({SSE.Process.Worker, @worker2}, id: @worker2),
-      Supervisor.child_spec({SSE.Process.Worker, @worker3}, id: @worker3)
+    IO.puts("worker supervisor starts up...")
+    DynamicSupervisor.init(strategy: :one_for_one)
+  end
 
-    ]
+  def add_child() do
+    child_spec = %{
+      id: :worker,
+      start: {@worker_proc, :start_link, []},
+      type: :worker,
+      restart: :transient,
+    }
+    DynamicSupervisor.start_child(@worker_sup, child_spec)
+  end
 
-    Supervisor.init(children, [strategy: :one_for_one])
+  @doc """
+  terminates first child in the list
+  """
+  def free_child() do
+    child_pids = DynamicSupervisor.which_children(@worker_sup)
+    {_, child_pid, _, _ } = Enum.at(child_pids, 0)
+
+    DynamicSupervisor.terminate_child(@worker_sup, child_pid)
   end
 end

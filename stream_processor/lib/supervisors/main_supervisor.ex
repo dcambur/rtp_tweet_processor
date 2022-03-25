@@ -12,6 +12,7 @@ defmodule SSE.Supervisor.Main do
   @listener_sup :listener_sup
   @worker_sup :worker_sup
   @dispatcher_sup :dispatcher_sup
+  @scaler_sup :scaler_sup
 
   @doc """
   runs the main supervisor
@@ -21,15 +22,16 @@ defmodule SSE.Supervisor.Main do
   end
 
   def init([]) do
-    IO.puts("Main Supervisor init...")
+    IO.puts("main supervisor starts up...")
 
     children = [
-        Supervisor.child_spec({SSE.Supervisor.Worker, @worker_sup}, id: @worker_sup),
+        {SSE.Supervisor.Worker, @worker_sup},
+        Supervisor.child_spec({SSE.Supervisor.Scaler, @scaler_sup}, id: @scaler_sup),
+        Supervisor.child_spec({SSE.Supervisor.Dispatcher, @dispatcher_sup}, id: @dispatcher_sup),
         Supervisor.child_spec({SSE.Supervisor.Listener, [@tweet1, @tweet2]}, id: @listener_sup),
-        Supervisor.child_spec({SSE.Supervisor.Dispatcher, @dispatcher_sup}, id: @dispatcher_sup)
+
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
-
 end
