@@ -31,8 +31,8 @@ defmodule SSE.Supervisor.Worker do
   terminates first child in the list
   """
   def free_child() do
-    child = DynamicSupervisor.which_children(@worker_sup)
-    {_, child_pid, _, _ } = Enum.at(child, 0)
+    child_pids = DynamicSupervisor.which_children(@worker_sup)
+    {_, child_pid, _, _ } = Enum.at(child_pids, 0)
 
     DynamicSupervisor.terminate_child(@worker_sup, child_pid)
   end

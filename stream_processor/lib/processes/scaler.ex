@@ -26,7 +26,6 @@ defmodule SSE.Process.Scaler do
     dist = cur_tweets - children.active
 
     IO.puts("current workers:#{children.active}")
-    IO.puts("current tweets:#{cur_tweets}")
 
 
     set_workers(dist)

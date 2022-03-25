@@ -20,7 +20,7 @@ defmodule SSE.Process.Worker do
   async function to handle common data and event errors
   """
   def handle_cast([:tweet, msg], _state) do
-    IO.inspect(msg)
+    # IO.inspect(msg["tweet"]["user"]["name"])
 
     Enum.random(@worker_idle)
     |> Process.sleep()

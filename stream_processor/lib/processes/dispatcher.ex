@@ -32,7 +32,7 @@ defmodule SSE.Process.Dispatcher do
 
     {_id, pid, _type, _module} = Enum.at(worker_pids, new_state)
 
-    GenServer.cast(pid, [:tweet, msg["message"]["tweet"]["user"]["name"]])
+    GenServer.cast(pid, [:tweet, msg["message"]])
 
     {:noreply, new_state}
     end

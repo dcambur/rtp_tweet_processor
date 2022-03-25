@@ -38,6 +38,7 @@ defmodule SSE.Process.Listener do
   end
 
   def handle_info(%HTTPoison.AsyncEnd{}, _state) do
+    IO.puts("Connection to the stream feed ends...")
     {:noreply, nil}
   end
 end
