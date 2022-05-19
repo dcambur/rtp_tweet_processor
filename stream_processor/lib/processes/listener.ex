@@ -5,6 +5,7 @@ defmodule SSE.Process.Listener do
   use GenServer
 
   @dispatcher_proc :dispatcher_proc
+  @reconnection_time 3000
 
   def start_link(url) do
     GenServer.start_link(__MODULE__, url)
@@ -12,33 +13,50 @@ defmodule SSE.Process.Listener do
 
   def init([url: url]) do
     IO.puts("listener process starts up on #{url}...")
-    HTTPoison.get!(url, [], [recv_timeout: :infinity, stream_to: self()])
-    {:ok, nil}
+    GenServer.cast(self(), :start_stream)
+
+    {:ok, url}
   end
 
   @doc """
   processes incoming info and sends the main data to dispatcher process
   """
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, _state) do
+  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, url) do
     SSE.Utils.TweetParser.process(@dispatcher_proc, chunk)
 
-    {:noreply, nil}
+    {:noreply, url}
   end
 
-  def handle_info(%HTTPoison.AsyncStatus{} = status, _state) do
-    IO.puts("Connection status: #{inspect(status)}")
+  def handle_info(%HTTPoison.AsyncStatus{} = status, url) do
+    IO.puts("Connection status #{inspect(self())}: #{inspect(status)}")
 
-    {:noreply, nil}
+    {:noreply, url}
   end
 
-  def handle_info(%HTTPoison.AsyncHeaders{} = headers, _state) do
-    IO.puts("Connection headers: #{inspect(headers)}")
+  def handle_info(%HTTPoison.AsyncHeaders{} = headers, url) do
+    IO.puts("Connection headers #{inspect(self())}: #{inspect(headers)}")
 
-    {:noreply, nil}
+    {:noreply, url}
   end
 
-  def handle_info(%HTTPoison.AsyncEnd{}, _state) do
-    IO.puts("Connection to the stream feed ends...")
-    {:noreply, nil}
+  def handle_info(%HTTPoison.AsyncEnd{}, url) do
+    IO.puts("Connection to the stream feed ends... reconnecting after #{@reconnection_time} ms")
+    Process.sleep(@reconnection_time)
+
+    GenServer.cast(self(), :start_stream)
+
+    {:noreply, url}
+  end
+
+  def handle_cast(:start_stream, url) do
+
+    HTTPoison.get!(url, [], [
+      recv_timeout: 10_000,
+      timeout: 10_000,
+      stream_to: self(),
+      hackney: [pool: :default],
+       ])
+
+    {:noreply, url}
   end
 end

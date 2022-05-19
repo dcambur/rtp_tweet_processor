@@ -4,7 +4,6 @@ defmodule SSE.Process.Worker do
   from the dispatcher
   """
   use GenServer
-
   @scaler_proc :scaler_proc
   @worker_idle 50..500
 
@@ -20,8 +19,7 @@ defmodule SSE.Process.Worker do
   async function to handle common data and event errors
   """
   def handle_cast([:tweet, msg], _state) do
-    # IO.inspect(msg["tweet"]["user"]["name"])
-
+    #IO.inspect(msg["tweet"]["user"]["name"])
     Enum.random(@worker_idle)
     |> Process.sleep()
 
@@ -31,11 +29,11 @@ defmodule SSE.Process.Worker do
   end
 
   def handle_cast([:panic, msg],  _state) do
-    IO.inspect(msg)
-
+    #IO.inspect(msg)
     Enum.random(@worker_idle)
     |> Process.sleep()
 
+    GenServer.cast(@scaler_proc, :dec)
     GenServer.cast(@scaler_proc, [:killonce, self()])
 
     {:noreply, nil}

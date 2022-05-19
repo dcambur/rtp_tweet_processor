@@ -23,7 +23,9 @@ defmodule STREAM_PROCESSOR.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.8"},
-      {:poison, "~> 5.0"}
+      {:poison, "~> 5.0"},
+      {:ecto_sql, "~> 3.7"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 end

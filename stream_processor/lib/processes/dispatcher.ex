@@ -23,8 +23,9 @@ defmodule SSE.Process.Dispatcher do
   finds the number of current workers under the worker supervisor
   and makes a cast via round-robin algorithm
   """
-    def handle_cast([:tweet, msg], state) do
+  def handle_cast([:tweet, msg], state) do
     GenServer.cast(@scaler_proc, :inc)
+
     worker_pids = DynamicSupervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
 
@@ -35,9 +36,11 @@ defmodule SSE.Process.Dispatcher do
     GenServer.cast(pid, [:tweet, msg["message"]])
 
     {:noreply, new_state}
-    end
+  end
 
   def handle_cast([:panic, msg], state) do
+    GenServer.cast(@scaler_proc, :inc)
+
     worker_pids = Supervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
 

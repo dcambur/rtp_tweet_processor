@@ -3,7 +3,7 @@ defmodule SSE.Process.Scaler do
 
   @worker_sup :worker_sup
 
-  @min_workers 100
+  @min_workers 30
   @worker_idle 500
 
   def start_link(name) do
@@ -14,7 +14,8 @@ defmodule SSE.Process.Scaler do
     IO.puts("scaler process starts up...")
 
     set_workers(@min_workers)
-
+    children = DynamicSupervisor.count_children(@worker_sup)
+    IO.puts("current workers:#{children.active}")
     Process.send_after(self(), :time_trigg, @worker_idle)
 
     {:ok, 0}
@@ -23,9 +24,10 @@ defmodule SSE.Process.Scaler do
   def handle_info(:time_trigg, cur_tweets) do
     children = DynamicSupervisor.count_children(@worker_sup)
 
-    dist = cur_tweets - children.active
+    dist = cur_tweets - children.active + @min_workers
 
     IO.puts("current workers:#{children.active}")
+    IO.puts("current tweets:#{cur_tweets}")
 
 
     set_workers(dist)
@@ -37,7 +39,7 @@ defmodule SSE.Process.Scaler do
 
   def handle_cast([:killonce, pid], cur_tweets) do
     DynamicSupervisor.terminate_child(@worker_sup, pid)
-    {:noreply, cur_tweets - 1}
+    {:noreply, cur_tweets}
   end
 
   def handle_cast(:inc, cur_tweets) do
