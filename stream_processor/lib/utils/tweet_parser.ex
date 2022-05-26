@@ -11,13 +11,13 @@ defmodule SSE.Utils.TweetParser do
   @doc """
   handles data cast to dispatcher and its convertation to key-value structure
   """
-  def process(send_to, raw_msg) do
+  def process(raw_msg) do
     cond do
-      String.contains?(raw_msg, @event_panic) -> send_panic(send_to)
+      String.contains?(raw_msg, @event_panic) -> give_panic()
 
       String.contains?(raw_msg, @event_ok) -> raw_msg
       |> sse_to_dict()
-      |> send_message(send_to)
+      |> give_message()
 
       true -> nil
     end
@@ -29,11 +29,11 @@ defmodule SSE.Utils.TweetParser do
     |> Poison.decode!()
   end
 
-  defp send_message(message, process_name) do
-    GenServer.cast(process_name, [:tweet, message])
+  defp give_message(message) do
+    [:tweet, message]
   end
 
-  defp send_panic(process_name) do
-    GenServer.cast(process_name, [:panic, @panic_msg])
+  defp give_panic() do
+    [:panic, @panic_msg]
   end
 end
