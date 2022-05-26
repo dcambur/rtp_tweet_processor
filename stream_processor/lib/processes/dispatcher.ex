@@ -39,8 +39,6 @@ defmodule SSE.Process.Dispatcher do
   end
 
   def handle_cast([:panic, msg], state) do
-    GenServer.cast(@scaler_proc, :inc)
-
     worker_pids = Supervisor.which_children(@worker_sup)
     worker_total = length(worker_pids)
 

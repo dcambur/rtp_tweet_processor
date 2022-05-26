@@ -5,7 +5,6 @@ defmodule SSE.Process.Listener do
   use GenServer
 
   @dispatcher_proc :dispatcher_proc
-  @reconnection_time 3000
 
   def start_link(url) do
     GenServer.start_link(__MODULE__, url)
@@ -40,11 +39,8 @@ defmodule SSE.Process.Listener do
   end
 
   def handle_info(%HTTPoison.AsyncEnd{}, url) do
-    IO.puts("Connection to the stream feed ends... reconnecting after #{@reconnection_time} ms")
-    Process.sleep(@reconnection_time)
-
+    IO.puts("Connection to the stream feed ends...")
     GenServer.cast(self(), :start_stream)
-
     {:noreply, url}
   end
 

@@ -1,6 +1,6 @@
 defmodule SSE.Process.Scaler do
   use GenServer
-
+  require IEx
   @worker_sup :worker_sup
 
   @min_workers 30
@@ -11,11 +11,9 @@ defmodule SSE.Process.Scaler do
   end
 
   def init([]) do
-    IO.puts("scaler process starts up...")
-
+    IO.puts("scaler process starts up... signals for #{@min_workers} workers to start up.")
     set_workers(@min_workers)
     children = DynamicSupervisor.count_children(@worker_sup)
-    IO.puts("current workers:#{children.active}")
     Process.send_after(self(), :time_trigg, @worker_idle)
 
     {:ok, 0}
