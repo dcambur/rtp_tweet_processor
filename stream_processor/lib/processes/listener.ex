@@ -4,47 +4,49 @@ defmodule SSE.Process.Listener do
   """
   use GenServer
 
-  @dispatcher_proc :dispatcher_proc
-
-  def start_link(url) do
-    GenServer.start_link(__MODULE__, url)
+  def start_link([url, disp_list]) do
+    GenServer.start_link(__MODULE__, [url, disp_list])
   end
 
-  def init([url: url]) do
+  def init([url, disp_list]) do
     IO.puts("listener process starts up on #{url}...")
     GenServer.cast(self(), :start_stream)
 
-    {:ok, url}
+    {:ok, [url, disp_list]}
   end
 
   @doc """
   processes incoming info and sends the main data to dispatcher process
   """
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, url) do
-    SSE.Utils.TweetParser.process(@dispatcher_proc, chunk)
+  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, [url, disp_list]) do
+    tweet = SSE.Utils.TweetParser.process(chunk)
 
-    {:noreply, url}
+    if tweet != nil do
+      Enum.map(disp_list, fn disp_proc -> GenServer.cast(disp_proc, tweet) end)
+    end
+
+    {:noreply, [url, disp_list]}
   end
 
-  def handle_info(%HTTPoison.AsyncStatus{} = status, url) do
+  def handle_info(%HTTPoison.AsyncStatus{} = status, [url, disp_list]) do
     IO.puts("Connection status #{inspect(self())}: #{inspect(status)}")
 
-    {:noreply, url}
+    {:noreply, [url, disp_list]}
   end
 
-  def handle_info(%HTTPoison.AsyncHeaders{} = headers, url) do
+  def handle_info(%HTTPoison.AsyncHeaders{} = headers, [url, disp_list]) do
     IO.puts("Connection headers #{inspect(self())}: #{inspect(headers)}")
 
-    {:noreply, url}
+    {:noreply, [url, disp_list]}
   end
 
-  def handle_info(%HTTPoison.AsyncEnd{}, url) do
+  def handle_info(%HTTPoison.AsyncEnd{}, [url, disp_list]) do
     IO.puts("Connection to the stream feed ends...")
     GenServer.cast(self(), :start_stream)
-    {:noreply, url}
+    {:noreply, [url, disp_list]}
   end
 
-  def handle_cast(:start_stream, url) do
+  def handle_cast(:start_stream, [url, disp_list]) do
 
     HTTPoison.get!(url, [], [
       recv_timeout: 10_000,
@@ -53,6 +55,6 @@ defmodule SSE.Process.Listener do
       hackney: [pool: :default],
        ])
 
-    {:noreply, url}
+    {:noreply, [url, disp_list]}
   end
 end

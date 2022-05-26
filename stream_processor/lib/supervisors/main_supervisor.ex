@@ -10,9 +10,21 @@ defmodule SSE.Supervisor.Main do
   @tweet2 "http://127.0.0.1:4000/tweets/2"
 
   @listener_sup :listener_sup
-  @worker_sup :worker_sup
-  @dispatcher_sup :dispatcher_sup
-  @scaler_sup :scaler_sup
+  @pool_sup1 [pool_sup: :pool_sup1,
+              worker_sup: :worker_sup1,
+              disp_proc: :disp_proc1,
+              scaler_proc: :scaler_proc1,
+              type: :sentiment
+            ]
+
+  @pool_sup2 [pool_sup: :pool_sup2,
+              worker_sup: :worker_sup2,
+              disp_proc: :disp_proc2,
+              scaler_proc: :scaler_proc2,
+              type: :engagement
+            ]
+  @disp_list [@pool_sup1[:disp_proc], @pool_sup2[:disp_proc]]
+
 
   @doc """
   runs the main supervisor
@@ -23,15 +35,12 @@ defmodule SSE.Supervisor.Main do
 
   def init([]) do
     IO.puts("main supervisor starts up...")
-
     children = [
-        {SSE.Supervisor.Worker, @worker_sup},
-        Supervisor.child_spec({SSE.Supervisor.Scaler, @scaler_sup}, id: @scaler_sup),
-        Supervisor.child_spec({SSE.Supervisor.Dispatcher, @dispatcher_sup}, id: @dispatcher_sup),
-        Supervisor.child_spec({SSE.Supervisor.Listener, [@tweet1, @tweet2]}, id: @listener_sup),
-
+        Supervisor.child_spec({SSE.Supervisor.Pool, @pool_sup1}, id: @pool_sup1[:pool_sup]),
+        Supervisor.child_spec({SSE.Supervisor.Pool, @pool_sup2}, id: @pool_sup2[:pool_sup]),
+        Supervisor.child_spec({SSE.Supervisor.Listener, [[@tweet1, @tweet2], @disp_list]}, id: @listener_sup),
     ]
 
-    Supervisor.init(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :one_for_all)
   end
 end
