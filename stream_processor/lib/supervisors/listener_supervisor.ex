@@ -4,7 +4,6 @@ defmodule SSE.Supervisor.Listener do
   """
   use Supervisor
 
-
   def start_link([tweet1, tweet2]) do
     Supervisor.start_link(__MODULE__, [tweet1, tweet2])
   end
