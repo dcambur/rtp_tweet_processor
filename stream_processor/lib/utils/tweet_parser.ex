@@ -30,7 +30,7 @@ defmodule SSE.Utils.TweetParser do
   end
 
   defp give_message(message) do
-    [:tweet, message]
+    [:tweet, message["message"]["tweet"]]
   end
 
   defp give_panic() do

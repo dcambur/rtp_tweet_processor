@@ -14,11 +14,19 @@ defmodule SSE.Process.EngagementWorker do
     {:ok, scaler_proc}
   end
 
+  def calculate_engagement(favorites, retweets, followers) when followers != 0 do
+    (favorites+retweets) / followers
+  end
+
+  def calculate_engagement(favorites, retweets, followers) when followers == 0 do
+    0.0
+  end
+
   @doc """
   async function to handle common data and event errors
   """
   def handle_cast([:tweet, msg], scaler_proc) do
-    #IO.puts("#{msg["tweet"]["user"]["name"]}")
+    IO.inspect(calculate_engagement(msg["favorite_count"], msg["retweet_count"], msg["user"]["followers_count"]))
     Enum.random(@worker_idle)
     |> Process.sleep()
 

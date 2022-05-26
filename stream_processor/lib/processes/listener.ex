@@ -20,7 +20,6 @@ defmodule SSE.Process.Listener do
   """
   def handle_info(%HTTPoison.AsyncChunk{chunk: chunk}, [url, disp_list]) do
     tweet = SSE.Utils.TweetParser.process(chunk)
-
     if tweet != nil do
       Enum.map(disp_list, fn disp_proc -> GenServer.cast(disp_proc, tweet) end)
     end
